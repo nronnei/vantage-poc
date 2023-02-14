@@ -1,14 +1,21 @@
-import { Drawer, DrawerBody, DrawerContent, DrawerHeader, UseDisclosureProps } from "@chakra-ui/react";
+import { Box, Drawer, DrawerBody, DrawerContent, DrawerHeader, DrawerOverlay, Flex, UseDisclosureProps } from "@chakra-ui/react";
 import React from "react";
+import { AppBar } from "./AppBar";
 
 export const AppDrawer = ({ onClose, isOpen }: UseDisclosureProps) => {
   return (
-    <Drawer placement="left" onClose={onClose} isOpen={isOpen} size="md">
-      <DrawerContent ml={16}>
-        <DrawerHeader borderBottomWidth='1px'>Basic Drawer</DrawerHeader>
-        <DrawerBody>
-          <p>MORE CONTENT</p>
-        </DrawerBody>
+    <Drawer placement="left" onClose={onClose} isOpen={isOpen} size="md" closeOnOverlayClick={true}>
+      <DrawerOverlay />
+      <DrawerContent>
+        <Flex>
+          <AppBar onOpen={() => { }} />
+          <Box>
+            <DrawerHeader borderBottomWidth='1px'>Basic Drawer</DrawerHeader>
+            <DrawerBody>
+              <p>MORE CONTENT</p>
+            </DrawerBody>
+          </Box>
+        </Flex>
       </DrawerContent>
     </Drawer>
   )
