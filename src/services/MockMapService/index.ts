@@ -8,7 +8,7 @@ import {
   MapServiceViewpoint
 } from "../../types/Events";
 import { VGeoJSONLayer, VLayer, VTileLayer } from "../../types/Layer";
-import { IMapService } from "../IMapService";
+import { IMapService } from "../../interfaces/IMapService";
 import { MockMap } from "./map";
 
 

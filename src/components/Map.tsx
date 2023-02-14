@@ -3,19 +3,20 @@
 import { Box } from '@chakra-ui/react'
 import React, { useRef, useEffect } from "react";
 import { useMapEventListeners } from '../hooks/use-map-event-listeners';
-import { MockMapService as MapService } from '../services/';
+import { EsriMapService as MapService } from '../services/';
 
 export const Map = () => {
   const CONTAINER_ID = 'map-container';
   const mapRef = useRef(CONTAINER_ID);
 
-  const registerListeners = useMapEventListeners();
+  const { setMapEventListeners, removeMapEventListeners } = useMapEventListeners(MapService);
 
   useEffect(() => {
     MapService.setMap(mapRef.current);
-    registerListeners(MapService);
+    setMapEventListeners();
+    return removeMapEventListeners;
   }, [])
 
 
-  return <Box w="100%" h="100vh" bg="teal" id={CONTAINER_ID}></Box>
+  return <Box w="100%" h="100vh" bg="yellow" id={CONTAINER_ID}></Box>
 }

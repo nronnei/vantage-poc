@@ -1,18 +1,38 @@
-import { IMapService } from "../services/IMapService";
+import { IMapService } from "../interfaces/IMapService";
 import { MapServiceEvent, MapServiceEventHandler } from "../types/Events";
 
-const registerListeners = (mapSvc: IMapService) => {
+const handleMapClick: MapServiceEventHandler = (event: MapServiceEvent) => {
+  console.log('click', event);
+};
 
-  const handleMapClick: MapServiceEventHandler = (event: MapServiceEvent) => {
-    console.log('I gotta click, fam!', event);
-  };
+const handleMapHover: MapServiceEventHandler = (event: MapServiceEvent) => {
+  console.log('hover', event);
+};
 
-  const handleMapHover: MapServiceEventHandler = (event: MapServiceEvent) => {
-    console.log('Hoverin, fam!', event);
-  };
+const handleMapMoveStart: MapServiceEventHandler = (event: MapServiceEvent) => {
+  console.log('movestart', event);
+};
 
-  mapSvc.on('click', handleMapClick);
-  mapSvc.on('hover', handleMapHover);
-}
+const handleMapMoveEnd: MapServiceEventHandler = (event: MapServiceEvent) => {
+  console.log('moveend', event);
+};
 
-export const useMapEventListeners = () => registerListeners;
+export const useMapEventListeners = (mapSvc: IMapService) => {
+
+  function setMapEventListeners() {
+    mapSvc.on('click', handleMapClick);
+    mapSvc.on('hover', handleMapHover);
+    mapSvc.on('movestart', handleMapMoveStart);
+    mapSvc.on('moveend', handleMapMoveEnd);
+  }
+
+  function removeMapEventListeners() {
+    mapSvc.off('click');
+    mapSvc.off('hover');
+    mapSvc.off('movestart');
+    mapSvc.off('moveend');
+  }
+
+  return { setMapEventListeners, removeMapEventListeners };
+
+};

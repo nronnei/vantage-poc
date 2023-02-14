@@ -7,7 +7,7 @@ export interface IMapService {
    * @param container The ID of an element to use as the map container, or the element itself.
    * @returns void
    */
-  setMap: (container: string | HTMLElement) => void
+  setMap: (container: string | HTMLDivElement) => void
 
   /**
    * Adds a layer to the map.
