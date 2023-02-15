@@ -2,7 +2,7 @@ import { Box, Drawer, DrawerBody, DrawerContent, DrawerHeader, DrawerOverlay, Fl
 import React from "react";
 import { AppBar } from "./AppBar";
 
-export const AppDrawer = ({ onClose, isOpen }: UseDisclosureProps) => {
+export const AppDrawer = ({ onClose, isOpen }: { onClose: () => void, isOpen: boolean }) => {
   return (
     <Drawer placement="left" onClose={onClose} isOpen={isOpen} size="md" closeOnOverlayClick={true}>
       <DrawerOverlay />

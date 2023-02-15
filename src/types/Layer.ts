@@ -13,6 +13,11 @@ export type VLayer = {
 export interface VTileLayer extends VLayer {
   type: 'tile',
   url: string
+  // Optional Leaflet Stuff, extract later
+  subdomains?: string,
+  minZoom?: number,
+  maxZoom?: number,
+  ext?: string
 }
 
 export interface VGeoJSONLayer extends VLayer {
