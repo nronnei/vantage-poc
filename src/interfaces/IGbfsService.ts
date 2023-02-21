@@ -29,7 +29,7 @@ export interface GbfsClient {
    * Given a system URL, gets all available GBFS feeds.
    * @returns GBFS Feeds for the target system.
    */
-  getSystemFeed: (url: string) => SystemFeeds
+  getSystemFeed: (opts: GbfsRequestArgs) => SystemFeeds
 
   /**
    * Get system information in the target lanaguage.
@@ -37,7 +37,7 @@ export interface GbfsClient {
    * @param language The target language.
    * @returns Sytem information details.
    */
-  getSystemInformation: (opts: GbfsRequestArgs) => SystemInformationResponse
+  getSystemInformation: (url: string) => SystemInformationResponse
 
   /**
    * Get information about system hours.
