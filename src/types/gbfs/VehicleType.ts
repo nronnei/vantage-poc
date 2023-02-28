@@ -1,4 +1,4 @@
-import { GbfsMetadata } from "./Gbfs"
+import { GbfsResponse } from "./Gbfs"
 
 export type VehicleType = {
   vehicle_type_id: string,
@@ -15,8 +15,4 @@ export type VehicleType = {
   pricing_plan_ids?: string[]
 }
 
-export interface VehicleTypesResponse extends GbfsMetadata {
-  data: {
-    vehicle_types: VehicleType[]
-  }
-} 
+export type VehicleTypesResponse = GbfsResponse<{ vehicle_types: VehicleType[] }>

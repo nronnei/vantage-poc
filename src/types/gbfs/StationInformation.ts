@@ -1,5 +1,5 @@
 import { MultiPolygon } from "geojson"
-import { GbfsMetadata } from "./Gbfs"
+import { GbfsResponse } from "./Gbfs"
 
 /**
  * Types for data objects in the system_information feed.
@@ -44,15 +44,13 @@ export type StationInformation = {
   parking_type?: ParkingTypes,
   parking_hoop?: false,
   contact_phone?: string,
-  vehicle_type_capacity: {
-    "abc123": 7,
-    "def456": 9
+  vehicle_type_capacity?: {
+    "abc123": number,
+    "def456": number
   }
-  station_area: MultiPolygon
+  station_area?: MultiPolygon
 }
 
-export interface StationInformationResponse extends GbfsMetadata {
-  data: {
-    stations: StationInformation[]
-  }
-}
+export type StationInformationResponse = GbfsResponse<{
+  stations: StationInformation[]
+}>

@@ -1,4 +1,10 @@
-import { MapServiceEventHandler, MapServiceEventType, MapServicePoint, MapServiceViewpoint } from "../types/Events";
+import {
+  MapServiceEvent,
+  MapServiceEventHandler,
+  MapServiceEventType,
+  MapServicePoint,
+  MapServiceViewpoint
+} from "../types/Events";
 import { VGeoJSONLayer, VLayer, VTileLayer } from "../types/Layer";
 
 export interface IMapService {
@@ -65,6 +71,8 @@ export interface IMapService {
    * @returns void
    */
   off: (eventName: MapServiceEventType) => void
+
+  emit: <T extends MapServiceEvent>(eventName: MapServiceEventType, event: T) => void
 
   /**
    * Switch the map view to the supplied viewpoint

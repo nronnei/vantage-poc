@@ -12,19 +12,18 @@ export type GbfsMetadata = {
   version: "2.3" | "2.2" | "2.1" | "2.0",
   ttl: number,
   last_updated: EpochTimeStamp,
-  data: {
-    [key: string]: any
-  }
 }
 
-export interface SystemFeeds extends GbfsMetadata {
-  data: {
-    [key: string]: Feed[]
-  }
+export interface GbfsResponse<T> extends GbfsMetadata {
+  data: T
 }
 
-export interface SystemVersions extends GbfsMetadata {
-  data: {
-    [key: string]: GbfsVersion[]
-  }
+export interface SystemFeeds {
+  [key: string]: { feeds: Feed[] }
+}
+
+export type AutoDisoveryResponse = GbfsResponse<SystemFeeds>
+
+export interface SystemVersions {
+  [key: string]: GbfsVersion[]
 }

@@ -3,11 +3,13 @@ import { SRID } from "./SRS";
 /**
  * The custom events we need to support on MapService implementations.
  */
-export type MapServiceEventType = 'movestart'
-  | 'moveend'
-  | 'click'
-  | 'mouseover'
-  | 'hover';
+export enum MapServiceEventType {
+  MoveStart = 'movestart',
+  MoveEnd = 'moveend',
+  Click = 'click',
+  MouseOver = 'mouseover',
+  Hover = 'hover',
+};
 
 /**
  * The coordinates defining a point on the map.
@@ -32,21 +34,21 @@ export type MapServiceEvent = {
 export type MapServiceEventHandler = (event: MapServiceEvent) => void
 
 export interface MoveStartEvent extends MapServiceEvent, MapServicePoint {
-  type: 'movestart',
+  type: MapServiceEventType.MoveStart,
 }
 
 export interface MoveEndEvent extends MapServiceEvent, MapServicePoint {
-  type: 'moveend',
+  type: MapServiceEventType.MoveEnd,
 }
 
 export interface ClickEvent extends MapServiceEvent, MapServicePoint {
-  type: 'click',
+  type: MapServiceEventType.Click,
 }
 
 export interface MouseOverEvent extends MapServiceEvent, MapServicePoint {
-  type: 'mouseover',
+  type: MapServiceEventType.MouseOver,
 }
 
 export interface HoverEvent extends MapServiceEvent, MapServicePoint {
-  type: 'hover',
+  type: MapServiceEventType.Hover,
 }

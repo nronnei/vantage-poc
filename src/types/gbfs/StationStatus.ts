@@ -1,4 +1,4 @@
-import { GbfsMetadata } from "./Gbfs"
+import { GbfsResponse } from "./Gbfs"
 
 export type AvailableVehicleCount = {
   /**
@@ -36,8 +36,4 @@ export type StationStatus = {
   vehicle_types_available: AvailableVehicleCount[]
 }
 
-export interface StationStatusResponse extends GbfsMetadata {
-  data: {
-    stations: StationStatus[]
-  }
-}
+export type StationStatusResponse = GbfsResponse<{ stations: StationStatus[] }>

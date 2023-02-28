@@ -3,19 +3,29 @@ import React from 'react';
 import { AppBar } from './components/AppBar';
 import { AppDrawer } from './components/AppDrawer';
 import { Map } from "./components/Map";
+import { InjectionProvider } from './context/injection';
+import logger from './services/ConsoleLogger';
+import { GbfsService } from './services/GbfsService';
+import { FetchHttpService } from './services/HttpService';
 
 export const App = () => {
 
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  // Injectaroo :-D
+  const httpClient = new FetchHttpService({ logger });
+
   return (
     <ChakraProvider>
-      <Flex direction="row">
-        <Box>
-          <AppBar onOpen={onOpen}></AppBar>
-          <AppDrawer isOpen={isOpen} onClose={onClose}></AppDrawer>
-        </Box>
-        <Map />
-      </Flex>
+      <InjectionProvider {...{ logger, httpClient, GbfsService }}>
+        <Flex direction="row">
+          <Box>
+            <AppBar onOpen={onOpen}></AppBar>
+            <AppDrawer isOpen={isOpen} onClose={onClose}></AppDrawer>
+          </Box>
+          <Map />
+        </Flex>
+      </InjectionProvider>
     </ChakraProvider>
   )
 };

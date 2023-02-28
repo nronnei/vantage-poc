@@ -1,4 +1,4 @@
-import { GbfsMetadata } from "./Gbfs"
+import { GbfsResponse } from "./Gbfs"
 
 export type SystemInformation = {
   system_id: string,
@@ -29,6 +29,4 @@ export type SystemInformation = {
   }
 }
 
-export interface SystemInformationResponse extends GbfsMetadata {
-  data: SystemInformation
-}
+export type SystemInformationResponse = GbfsResponse<SystemInformation>
