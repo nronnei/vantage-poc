@@ -24,7 +24,7 @@ export function logTag(method: string) {
 export class GbfsService implements IGbfsClient {
   private readonly client: IHttpClient;
   private readonly logger: ILogger;
-  private system: System;
+  private system?: System;
   private _cache = new Map<keyof FeedResponseMap, FeedResponseMap[keyof FeedResponseMap]>();
   language: string = 'en';
 
@@ -60,6 +60,9 @@ export class GbfsService implements IGbfsClient {
   }
 
   private async _getFeed<F extends keyof FeedResponseMap>(feedName: F): Promise<FeedResponseMap[F]> {
+    if (!this.system) {
+      throw new Error('No system set');
+    }
     // First, make sure we've actually loaded all the system's feeds.
     if (!this._cache.has('auto_disovery_feed')) {
       await this._retrieveAndCache('auto_disovery_feed', this.system.auto_discovery_url);
@@ -87,6 +90,17 @@ export class GbfsService implements IGbfsClient {
     const res = await this.client.get<FeedResponseMap[F]>(endpoint);
     this._setCachedFeed(feedName, res);
     return res as FeedResponseMap[F];
+  }
+
+  setSystem(system: System) {
+    if (system.system_id === this.system?.system_id) return;
+    this.system = system;
+    this._cache.clear();
+  }
+
+  getSystem() {
+    if (!this.system) throw new Error('No system set');
+    return this.system;
   }
 
   async getAutoDiscovery() {

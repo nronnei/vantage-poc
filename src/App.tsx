@@ -14,10 +14,11 @@ export const App = () => {
 
   // Injectaroo :-D
   const httpClient = new FetchHttpService({ logger });
+  const gbfsClient = new GbfsService({ logger, client: httpClient, language: 'en' })
 
   return (
     <ChakraProvider>
-      <InjectionProvider {...{ logger, httpClient, GbfsService }}>
+      <InjectionProvider {...{ logger, httpClient, gbfsClient }}>
         <Flex direction="row">
           <Box>
             <AppBar onOpen={onOpen}></AppBar>

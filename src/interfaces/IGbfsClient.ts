@@ -25,7 +25,7 @@ export interface GbfsClientOptions {
    */
   logger: ILogger,
 
-  system: System,
+  system?: System,
 
   /**
    * The preferred language for responses. Should default to English.
@@ -35,7 +35,6 @@ export interface GbfsClientOptions {
 
 export interface GbfsClientConstructor {
   new: (opts: GbfsClientOptions) => IGbfsClient
-  construct: (opts: GbfsClientOptions) => IGbfsClient
   /**
    * Gets a list of all available systems. Pass an item from this array to the
    * constructor to initiate an instance if IGbfsClient.
@@ -44,6 +43,19 @@ export interface GbfsClientConstructor {
 }
 
 export interface IGbfsClient extends GbfsClientOptions {
+
+  /**
+   * Get the currently active system.
+   * @returns The currently active system.
+   */
+  getSystem: () => System
+
+  /**
+   * Sets a new active system.
+   * @param system The new system.
+   * @returns
+   */
+  setSystem: (system: System) => void;
 
   /**
    * Given a system URL, gets all available GBFS feeds.

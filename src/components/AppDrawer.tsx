@@ -1,21 +1,22 @@
 import { Box, Drawer, DrawerBody, DrawerContent, DrawerHeader, DrawerOverlay, Flex, UseDisclosureProps } from "@chakra-ui/react";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useInjection } from '../context/injection';
-import { GbfsClientConstructor } from '../interfaces/IGbfsClient';
+import { IGbfsClient } from '../interfaces/IGbfsClient';
 import { IHttpClient } from '../interfaces/IHttpClient';
 import { ILogger } from '../interfaces/ILogger';
+import { GbfsService } from '../services/GbfsService';
 import { Feed, System } from '../types';
 import { AppBar } from "./AppBar";
 
 type ServiceDeps = {
-  GbfsService: GbfsClientConstructor,
+  gbfsClient: GbfsService,
   logger: ILogger,
   httpClient: IHttpClient,
 }
 
 export const AppDrawer = ({ onClose, isOpen }: { onClose: () => void, isOpen: boolean }) => {
 
-  const { GbfsService, logger, httpClient } = useInjection() as ServiceDeps;
+  const { gbfsClient, logger } = useInjection() as ServiceDeps;
   const [systems, setSystems] = useState([] as System[]);
   const [systemFeeds, setSystemFeeds] = useState([] as Feed[]);
 
@@ -25,9 +26,9 @@ export const AppDrawer = ({ onClose, isOpen }: { onClose: () => void, isOpen: bo
       const newSystems = await GbfsService.getSystems();
       setSystems(newSystems);
       const system = newSystems.find(s => s.system_id === 'nextbike_al') as System;
-      const svc = new GbfsService({ client: httpClient, logger, system });
+      gbfsClient.setSystem(system);
       try {
-        const feeds = await svc.getSystemFeeds();
+        const feeds = await gbfsClient.getSystemFeeds();
         setSystemFeeds(feeds);
       } catch (error) {
         logger.error('uh oh', error);
