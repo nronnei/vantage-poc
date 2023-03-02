@@ -1,16 +1,21 @@
 import { ChakraProvider, Flex, Box, useDisclosure } from '@chakra-ui/react';
 import React from 'react';
 import { AppBar } from './components/AppBar';
-import { AppDrawer } from './components/AppDrawer';
 import { Map } from "./components/Map";
+import { Sidebar } from './components/Sidebar';
+import { SidebarContent } from './components/SidebarContent';
 import { InjectionProvider } from './context/injection';
 import logger from './services/ConsoleLogger';
 import { GbfsService } from './services/GbfsService';
 import { FetchHttpService } from './services/HttpService';
 
+const APP_BAR_WIDTH_DESKTOP = 16
+
 export const App = () => {
 
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { getDisclosureProps, getButtonProps, isOpen, onClose } = useDisclosure();
+  const buttonProps = getButtonProps({ onClick: () => console.log('click!') });
+  const disclosureProps = getDisclosureProps({ isOpen });
 
   // Injectaroo :-D
   const httpClient = new FetchHttpService({ logger });
@@ -21,8 +26,10 @@ export const App = () => {
       <InjectionProvider {...{ logger, httpClient, gbfsClient }}>
         <Flex direction="row">
           <Box>
-            <AppBar onOpen={onOpen}></AppBar>
-            <AppDrawer isOpen={isOpen} onClose={onClose}></AppDrawer>
+            <AppBar width={APP_BAR_WIDTH_DESKTOP} buttonProps={buttonProps}></AppBar>
+            <Sidebar ml={APP_BAR_WIDTH_DESKTOP} {...disclosureProps}>
+              <SidebarContent></SidebarContent>
+            </Sidebar>
           </Box>
           <Map />
         </Flex>
