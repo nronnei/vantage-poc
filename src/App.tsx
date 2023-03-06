@@ -12,7 +12,7 @@ const APP_BAR_WIDTH_DESKTOP = 16
 export const App = () => {
 
   const { getDisclosureProps, getButtonProps, isOpen, onClose } = useDisclosure();
-  const buttonProps = getButtonProps({ onClick: () => console.log('click!') });
+  const buttonProps = getButtonProps();
   const disclosureProps = getDisclosureProps({ isOpen });
 
   return (

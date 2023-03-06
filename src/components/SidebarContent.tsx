@@ -1,6 +1,6 @@
 import React, { Suspense, useState } from "react";
 import { Heading, Text } from '@chakra-ui/react';
-import { ServiceDeps, useInjection } from '../context/injection';
+import { useInjection } from '../context/injection';
 import { SystemDetails } from './SystemDetails';
 import { SystemCard } from './systems-list/SystemCard';
 

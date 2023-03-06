@@ -1,6 +1,6 @@
 import { Button, Card, CardBody, CardFooter, CardHeader, Heading, Text, } from '@chakra-ui/react';
 import React from 'react';
-import { ServiceDeps, useInjection } from '../../context/injection';
+import { useInjection } from '../../context/injection';
 import { System } from '../../types';
 
 
@@ -8,9 +8,8 @@ export function SystemCard({ system, onChangeSystem }: { system: System, onChang
   const { systemService } = useInjection();
   const setSystem = systemService.useSetSelectedSystem();
   const handleClick = () => {
-    console.log('setting system', system)
     setSystem(system);
-    onChangeSystem()
+    onChangeSystem();
   }
 
   return (

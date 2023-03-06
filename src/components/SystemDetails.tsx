@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Heading, Text, Button, VStack } from '@chakra-ui/react';
-import { ServiceDeps, useInjection } from '../context/injection';
+import { useInjection } from '../context/injection';
 
 export function SystemDetails({ onBack }: { onBack: () => void }) {
 
@@ -8,10 +8,6 @@ export function SystemDetails({ onBack }: { onBack: () => void }) {
 
   const system = systemService.useSelectedSystemValue();
   const info = systemService.useSystemInformationValue(system.system_id);
-
-  useEffect(() => {
-    console.log('rendered with system', system);
-  }, [system])
 
   return (
     <VStack alignItems="left">
