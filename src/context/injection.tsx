@@ -7,6 +7,8 @@ import { FetchGbfsClient } from '../services/GbfsClient';
 import { FetchHttpService } from '../services/HttpService';
 import logger from '../services/ConsoleLogger';
 import { createSystemsState } from '../repositories/systems/recoil-state';
+import { LeafletMapService } from '../services/LeafletMapService';
+import { IMapService } from '../interfaces/IMapService';
 
 export type ServiceDeps = {
   gbfsClient: IGbfsClient,
@@ -14,10 +16,12 @@ export type ServiceDeps = {
   stationService: ReturnType<typeof createSystemServiceHooks>
   logger: ILogger,
   httpClient: IHttpClient,
+  mapService: IMapService
 }
 
 // Injectaroo :-D
 const httpClient = new FetchHttpService({ logger });
+const mapService = new LeafletMapService();
 const gbfsClient = new FetchGbfsClient({ logger, client: httpClient, language: 'en' });
 const repoOpts = { logger, client: gbfsClient };
 const systemService = createSystemServiceHooks({ ...repoOpts, state: createSystemsState(repoOpts) });
@@ -27,7 +31,8 @@ const injections: ServiceDeps = {
   httpClient,
   gbfsClient,
   systemService,
-  stationService
+  stationService,
+  mapService,
 }
 
 const InjectionContext = createContext({} as ServiceDeps);

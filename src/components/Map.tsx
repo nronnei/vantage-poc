@@ -1,18 +1,20 @@
 // import L from "leaflet";
 import "leaflet/dist/leaflet.css"
-import { Box } from '@chakra-ui/react'
 import React, { useRef, useEffect } from "react";
+import { Box } from '@chakra-ui/react'
 import { useMapEventListeners } from '../hooks/use-map-event-listeners';
-import { LeafletMapService as MapService } from '../services/';
+import { useInjection } from '../context/injection';
 
 export const Map = () => {
+
+  const { mapService } = useInjection();
   const CONTAINER_ID = 'map-container';
   const mapRef = useRef(CONTAINER_ID);
 
-  const { setMapEventListeners, removeMapEventListeners } = useMapEventListeners(MapService);
+  const { setMapEventListeners, removeMapEventListeners } = useMapEventListeners(mapService);
 
   useEffect(() => {
-    MapService.setMap(mapRef.current);
+    mapService.setMap(mapRef.current);
     setMapEventListeners();
     return removeMapEventListeners;
   }, [mapRef])
