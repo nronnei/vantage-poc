@@ -35,14 +35,15 @@ export interface GbfsClientOptions {
 
 export interface GbfsClientConstructor {
   new: (opts: GbfsClientOptions) => IGbfsClient
+}
+
+export interface IGbfsClient extends GbfsClientOptions {
+
   /**
    * Gets a list of all available systems. Pass an item from this array to the
    * constructor to initiate an instance if IGbfsClient.
    */
   getSystems: () => Promise<System[]>
-}
-
-export interface IGbfsClient extends GbfsClientOptions {
 
   /**
    * Get the currently active system.
@@ -77,19 +78,19 @@ export interface IGbfsClient extends GbfsClientOptions {
    */
   getSystemInformation: (endpoint?: string) => Promise<SystemInformationResponse>
 
-  /**
-   * Get information about system hours.
-   * @param endpoint A system hours URL.
-   * @returns
-   */
-  getSystemHours: (endpoint?: string) => Promise<JSON>
+  // /**
+  //  * Get information about system hours.
+  //  * @param endpoint A system hours URL.
+  //  * @returns
+  //  */
+  // getSystemHours: (endpoint?: string) => Promise<JSON>
 
-  /**
-   * Gets information about system pricing.
-   * @param endpoint A system pricing URL.
-   * @returns
-   */
-  getSystemPricing: (endpoint?: string) => Promise<JSON>
+  // /**
+  //  * Gets information about system pricing.
+  //  * @param endpoint A system pricing URL.
+  //  * @returns
+  //  */
+  // getSystemPricing: (endpoint?: string) => Promise<JSON>
 
   /**
    * Gets data about what vehicle types are available within the system.

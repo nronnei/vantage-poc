@@ -3,6 +3,7 @@ import { IHttpClient } from '../../interfaces/IHttpClient';
 import { AutoDisoveryResponse, StationInformationResponse, StationStatusResponse, System, SystemInformationResponse, VehicleTypesResponse } from '../../types';
 import systemData from '../../data/systems.json';
 import { ILogger } from '../../interfaces/ILogger';
+import { NotFoundError } from '../../errors';
 
 type FeedResponseMap = {
   auto_disovery_feed: AutoDisoveryResponse,
@@ -16,17 +17,17 @@ type FeedResponseMap = {
   // system_pricing_plans: SystemPricingPlansResponse
 }
 
-const LOG_TAG = 'GbfsService::'
+const LOG_TAG = 'FetchGbfsClient::'
 export function logTag(method: string) {
   return `${LOG_TAG}${method}:`
 }
 
-export class GbfsService implements IGbfsClient {
-  private readonly client: IHttpClient;
-  private readonly logger: ILogger;
-  private system?: System;
-  private _cache = new Map<keyof FeedResponseMap, FeedResponseMap[keyof FeedResponseMap]>();
+export class FetchGbfsClient implements IGbfsClient {
+  readonly client: IHttpClient;
+  readonly logger: ILogger;
+  system?: System;
   language: string = 'en';
+  private _cache = new Map<keyof FeedResponseMap, FeedResponseMap[keyof FeedResponseMap]>();
 
   constructor(opts: GbfsClientOptions) {
     // Clear the baseUrl if one is set. We want to make sure we only use the feed endpoints.
@@ -37,7 +38,7 @@ export class GbfsService implements IGbfsClient {
     if (opts.language) this.language = opts.language;
   }
 
-  public static getSystems() {
+  getSystems() {
     return Promise.resolve(systemData as System[]);
   };
 
@@ -99,7 +100,7 @@ export class GbfsService implements IGbfsClient {
   }
 
   getSystem() {
-    if (!this.system) throw new Error('No system set');
+    if (!this.system) throw new NotFoundError('No system set');
     return this.system;
   }
 
