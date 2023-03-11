@@ -8,7 +8,7 @@ import { SystemCard } from './systems-list/SystemCard';
 
 function SystemsList({ onChangeSystem }: { onChangeSystem: () => void }) {
   const { systemService } = useInjection();
-  const systems = systemService.useSystemsValue();
+  const systems = systemService.getSystems();
 
   return <>
     <Heading as="h1">Systems</Heading>

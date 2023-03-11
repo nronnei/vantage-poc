@@ -51,6 +51,15 @@ export interface IGbfsClient extends GbfsClientOptions {
    */
   getSystem: () => System
 
+
+  /**
+   * Load autodisovery data for the selected system. Optionally, pass a new
+   * system to set as the selected system.
+   * @param system Optional; new selected system.
+   * @returns
+   */
+  loadSystemData: (system?: System) => Promise<void>
+
   /**
    * Sets a new active system.
    * @param system The new system.

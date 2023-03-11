@@ -1,25 +1,16 @@
-import { useRecoilCallback, useRecoilValue } from 'recoil';
-import { IGbfsClient } from '../../interfaces/IGbfsClient';
-import { ILogger } from '../../interfaces/ILogger';
-import { StationInformation, StationStatus, System } from '../../types';
+import { useRecoilCallback, useRecoilState, useRecoilValue } from 'recoil';
+import { System } from '../../types';
+import { CreateGbfsRepoDeps } from '../types';
 import { IGbfsSystemRepo } from './interface';
 import { createSystemsState } from './recoil-state';
 
-type CreateGbfsHooksDeps<GbfsStateStore> = {
-  logger: ILogger,
-  client: IGbfsClient,
-  state: GbfsStateStore
-}
-
-type RecoilGbfsHooksDeps = CreateGbfsHooksDeps<ReturnType<typeof createSystemsState>>
-
-export function createSystemServiceHooks(opts: RecoilGbfsHooksDeps): IGbfsSystemRepo {
+export function createSystemRepo(opts: CreateGbfsRepoDeps): IGbfsSystemRepo {
   const { client } = opts;
-  const systemState = createSystemsState(opts);
+  const state = createSystemsState(opts);
 
-  const controller = {
+  const controller: IGbfsSystemRepo = {
     useSelectedSystemValue() {
-      return useRecoilValue(systemState.selectedSystem);
+      return useRecoilValue(state.selectedSystem);
     },
 
     /**
@@ -29,8 +20,12 @@ export function createSystemServiceHooks(opts: RecoilGbfsHooksDeps): IGbfsSystem
     useSetSelectedSystem() {
       return useRecoilCallback(({ set }) => async (system: System) => {
         client.setSystem(system);
-        set(systemState.selectedSystem, system);
+        set(state.selectedSystem, system);
       });
+    },
+
+    useSelectedSystemState() {
+      return useRecoilState(state.selectedSystem);
     },
     /**
      * Get a GBFS System.
@@ -38,14 +33,14 @@ export function createSystemServiceHooks(opts: RecoilGbfsHooksDeps): IGbfsSystem
      * @returns Basic system data.
      */
     useSystemValue(id: System["system_id"]) {
-      return useRecoilValue(systemState.availableSystems(id));
+      return useRecoilValue(state.availableSystems(id));
     },
     /**
      * Get all available systems.
      * @returns ALLLLLL THE SYSTEMS!
      */
     useSystemsValue() {
-      return useRecoilValue(systemState.getAllSystems)
+      return useRecoilValue(state.getAllSystems)
     },
     /**
      * Get system_information for a system.
@@ -53,7 +48,7 @@ export function createSystemServiceHooks(opts: RecoilGbfsHooksDeps): IGbfsSystem
      * @returns Information for the target system.
      */
     useSystemInformationValue(id: System["system_id"]) {
-      return useRecoilValue(systemState.systemInformation(id));
+      return useRecoilValue(state.systemInformation(id));
     },
     /**
      * Get available vehicle types for a system.
@@ -61,16 +56,7 @@ export function createSystemServiceHooks(opts: RecoilGbfsHooksDeps): IGbfsSystem
      * @returns The available vehicle types.
      */
     useSystemVehicleTypesValue(id: System["system_id"]) {
-      return useRecoilValue(systemState.systemVehicleTypes(id));
-    },
-    useStationsValue() {
-      return [] as StationInformation[]
-    },
-    useStationInformationValue() {
-      return {} as StationInformation
-    },
-    useStationStatusValue() {
-      return {} as StationStatus
+      return useRecoilValue(state.systemVehicleTypes(id));
     },
   }
 

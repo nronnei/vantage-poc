@@ -45,6 +45,7 @@ export class FetchHttpService implements IHttpClient {
     this.pending.set(url, req);
     const res = await req;
     this.logger.info(`${logTag('get')} Response`, res);
+    this.pending.delete(url);
     return res.json();
   }
 }

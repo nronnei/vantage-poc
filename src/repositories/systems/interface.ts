@@ -1,3 +1,4 @@
+import { SetterOrUpdater } from 'recoil';
 import { IGbfsClient } from '../../interfaces/IGbfsClient'
 import { GbfsRepoOptions } from '../../interfaces/IGbfsRepo'
 import { System, SystemInformation, VehicleType } from '../../types';
@@ -7,6 +8,10 @@ export type RecoilGbfsRepoOptions = GbfsRepoOptions & { client: IGbfsClient }
 export interface IGbfsSystemRepo {
   useSelectedSystemValue: () => System
   useSetSelectedSystem: () => (system: System) => void
+  useSelectedSystemState: () => [
+    System,
+    SetterOrUpdater<System>
+  ]
   useSystemValue: (id: System["system_id"]) => System
   useSystemsValue: () => System[]
   useSystemInformationValue: (id: System["system_id"]) => SystemInformation

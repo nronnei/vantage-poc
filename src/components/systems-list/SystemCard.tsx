@@ -5,10 +5,14 @@ import { System } from '../../types';
 
 
 export function SystemCard({ system, onChangeSystem }: { system: System, onChangeSystem: () => void }) {
-  const { systemService } = useInjection();
-  const setSystem = systemService.useSetSelectedSystem();
-  const handleClick = () => {
-    setSystem(system);
+  const { systemService, stationService } = useInjection();
+
+  const loadSystem = systemService.useLoadSystem();
+  const loadStations = stationService.useLoadStations();
+
+  const handleClick = async () => {
+    await loadSystem(system);
+    await loadStations();
     onChangeSystem();
   }
 

@@ -1,9 +1,17 @@
 import { GbfsClientOptions, IGbfsClient, SystemFeedRequest } from '../../interfaces/IGbfsClient';
 import { IHttpClient } from '../../interfaces/IHttpClient';
-import { AutoDisoveryResponse, StationInformationResponse, StationStatusResponse, System, SystemInformationResponse, VehicleTypesResponse } from '../../types';
 import systemData from '../../data/systems.json';
 import { ILogger } from '../../interfaces/ILogger';
 import { NotFoundError } from '../../errors';
+import {
+  AutoDisoveryResponse,
+  Feed,
+  StationInformationResponse,
+  StationStatusResponse,
+  System,
+  SystemInformationResponse,
+  VehicleTypesResponse
+} from '../../types';
 
 type FeedResponseMap = {
   auto_disovery_feed: AutoDisoveryResponse,
@@ -28,6 +36,7 @@ export class FetchGbfsClient implements IGbfsClient {
   system?: System;
   language: string = 'en';
   private _cache = new Map<keyof FeedResponseMap, FeedResponseMap[keyof FeedResponseMap]>();
+  private _feeds = new Map<string, Feed[]>();
 
   constructor(opts: GbfsClientOptions) {
     // Clear the baseUrl if one is set. We want to make sure we only use the feed endpoints.
@@ -61,25 +70,30 @@ export class FetchGbfsClient implements IGbfsClient {
   }
 
   private async _getFeed<F extends keyof FeedResponseMap>(feedName: F): Promise<FeedResponseMap[F]> {
-    if (!this.system) {
-      throw new Error('No system set');
-    }
-    // First, make sure we've actually loaded all the system's feeds.
-    if (!this._cache.has('auto_disovery_feed')) {
-      await this._retrieveAndCache('auto_disovery_feed', this.system.auto_discovery_url);
-    }
+    const fnTag = logTag('_getFeed');
 
-    // Try to hit the cache first
+    if (!this.system) throw new Error(`${fnTag} No system set.`);
+
+    // Try to hit the cache first; this should prevent recursion when calling getAutoDiscovery.
     const cached = this._getCachedFeed(feedName);
-    if (cached) return cached as FeedResponseMap[F];
+    if (cached) {
+      this.logger.info(`${fnTag} Cached ${feedName} response found.`)
+      return cached as FeedResponseMap[F];
+    }
 
-    // If there's nothing in the cache, it's time to make a request. Get the endpoint.
-    const feeds = await this.getSystemFeeds();
+    if (feedName === 'auto_disovery_feed') {
+      return this._retrieveAndCache(feedName, this.system.auto_discovery_url);
+    }
 
     // Make sure the system has data for that feed in that language
-    const targetFeed = feeds.find(f => f.name === feedName);
+    const targetFeeds = this._feeds.get(this.language);
+    if (!targetFeeds) {
+      throw new NotFoundError(`${fnTag} No feeds found for language "${this.language}."`)
+    }
+    // Get the feed
+    const targetFeed = targetFeeds.find(f => f.name === feedName);
     if (!targetFeed) {
-      throw new Error(`${logTag('getFeed')} No "${feedName}" feed found.`);
+      throw new NotFoundError(`${fnTag} No "${feedName}" feed found.`);
     }
 
     // Make the request and cache the result
@@ -102,6 +116,26 @@ export class FetchGbfsClient implements IGbfsClient {
   getSystem() {
     if (!this.system) throw new NotFoundError('No system set');
     return this.system;
+  }
+
+  async loadSystemData(system?: System) {
+    const fnTag = logTag('loadSystemData');
+
+    if (system) {
+      this.logger.info(`${fnTag} System provided. Setting new system...`)
+      this.setSystem(system);
+    }
+
+    if (!this.system) {
+      throw new NotFoundError(`${fnTag} No system set.`);
+    }
+
+    this.logger.info(`${fnTag} Loading autodiscovery...`);
+    const feeds = await this.getAutoDiscovery();
+    Object.entries(feeds.data).forEach(([lang, obj]) => {
+      this._feeds.set(lang, obj.feeds);
+    }, this);
+    this.logger.info(`${fnTag} System data loaded.`);
   }
 
   async getAutoDiscovery() {

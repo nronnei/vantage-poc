@@ -1,44 +1,63 @@
-import { atom, atomFamily, selector } from 'recoil';
-import { StationInformation } from '../../types';
+import { atom, atomFamily, selector, selectorFamily } from 'recoil';
+import { StationInformation, StationStatus } from '../../types';
 import { RecoilGbfsRepoOptions } from '../systems/interface';
 
-export function createStationsState({ client, logger }: RecoilGbfsRepoOptions) {
+export function createStationsState() {
 
-  const getStationInfoQuery = selector({
-    key: 'getStationInfoQuery',
-    get: async () => {
-      const res = await client.getStationInformation();
-      return res.data.stations.map((s) => {
-        s.station_id = window.crypto.randomUUID()
-        return s;
-      });
-    }
-  });
-
-  const selectedStation = atom({
+  const selectedStation = atom<null | string>({
     key: 'selectedStation',
-    default: {} as StationInformation
+    default: null
   });
 
-  const feedLastUpdated = atomFamily({
-    key: 'feedLastUpdated'
-  })
+  const stationStatusLastUpdated = atom<null | Date>({
+    key: 'stationStatusLastUpdated',
+    default: null,
+  });
+
+  const allStationsInformation = atom({
+    key: 'allStationsInformation',
+    default: [] as StationInformation[],
+  });
+
+  const allStationsStatus = atom({
+    key: 'stationInformation',
+    default: [] as StationStatus[],
+  });
+
+  const stationInformation = selectorFamily({
+    key: 'stationInformation',
+    get: (id: StationInformation["station_id"]) => ({ get }) => {
+      const stations = get(allStationsInformation);
+      return stations.find(s => s.station_id === id) || null;
+    },
+  });
+
+  const stationStatus = selectorFamily({
+    key: 'stationStatus',
+    get: (id: StationInformation["station_id"]) => ({ get }) => {
+      const stations = get(allStationsStatus);
+      return stations.find(s => s.station_id === id) || null;
+    },
+  });
 
   const availableStationsIdx = atom({
     key: 'availableStationsIdx',
     default: selector({
-      key: 'defaultAvailableStationsIdx',
+      key: 'defaultStationsIdx',
       get: ({ get }) => {
-        const stations = get(getStationInfoQuery)
-        return stations.map(({ station_id }) => station_id);
+        return get(allStationsInformation).map(s => s.station_id);
       }
-    })
+    }),
   });
 
   return {
     selectedStation,
-    feedLastUpdated,
+    stationStatusLastUpdated,
     availableStationsIdx,
+    allStationsInformation,
+    stationInformation,
+    allStationsStatus,
+    stationStatus,
   };
 
 }
