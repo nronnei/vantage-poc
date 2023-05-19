@@ -1,27 +1,23 @@
-import { Feature, FeatureCollection } from "geojson";
+import { Feature, FeatureCollection } from 'geojson';
 
-export type VLayer = {
+export type VLayerConfig = {
   id: number | string,
-  visible: boolean,
-  opacity: number,
   name: string,
-  type: 'tile' | 'geojson' | 'wfs',
-  description?: string,
-  attribution?: string,
+  opacity: number,
+  visible: boolean,
+  attribution?: string
+};
+
+export type VGeoJSONLayer = VLayerConfig & {
+  type: "geojson",
+  features: FeatureCollection | Feature[] | Feature
 }
 
-export interface VTileLayer extends VLayer {
-  type: 'tile',
-  url: string
-  // Optional Leaflet Stuff, extract later
-  subdomains?: string,
-  minZoom?: number,
-  maxZoom?: number,
-  ext?: string
+export type VTileLayer = VLayerConfig & {
+  type: "tile",
+  url: string,
 }
 
-export interface VGeoJSONLayer extends VLayer {
-  type: 'geojson',
-  data: FeatureCollection | Feature[] | Feature,
-}
+export type VLayer = (VGeoJSONLayer | VTileLayer);
 
+export type NewVLayer = Partial<VLayer>;

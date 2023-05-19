@@ -18,6 +18,7 @@ import {
 } from "../../types/Events";
 import { VGeoJSONLayer, VLayer, VTileLayer } from "../../types/Layer";
 import { IMapService } from "../../interfaces/IMapService";
+import { LeafletTileLayer } from './types';
 
 
 export class LeafletMapService implements IMapService {
@@ -44,7 +45,7 @@ export class LeafletMapService implements IMapService {
       id: '__base',
       type: 'tile',
       name: 'Basemap',
-      url: 'https://stamen-tiles-{s}.a.ssl.fastly.net/watercolor/{z}/{x}/{y}{r}.png',
+      url: 'https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}{r}.png',
       visible: true,
       opacity: 1,
       attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -91,8 +92,11 @@ export class LeafletMapService implements IMapService {
   };
 
   removeLayer(layerId: string | number) {
-    const targetLayer = this._layerCache[layerId];
-    targetLayer.remove();
+    const targetLayer = this._layerCache.get(layerId);
+    if (targetLayer) {
+      targetLayer.remove();
+      this._layerCache.delete(layerId);
+    }
   };
 
   removeLayers(layerIds?: (string | number)[] | undefined) {
@@ -158,19 +162,32 @@ export class LeafletMapService implements IMapService {
       case 'tile':
         return this.createTileLayer(layerConfig);
       case 'geojson':
-        throw possibleError
+        return this.createGeoJSONLayer(layerConfig);
       default:
         throw possibleError;
     }
   }
 
-  private createTileLayer(layerConfig: VTileLayer) {
+  private createTileLayer(layerConfig: LeafletTileLayer) {
     try {
       const { url, attribution, subdomains, minZoom, maxZoom, ext } = layerConfig;
       const tLayer = L.tileLayer(url, { attribution, subdomains, minZoom, maxZoom });
       return tLayer;
     } catch (error) {
       console.error('[createTileLayer]', error)
+    }
+  }
+
+  private createGeoJSONLayer(layerConfig: VGeoJSONLayer) {
+    try {
+      return L.geoJSON(layerConfig.features, {
+        pointToLayer: (point, latlng) => {
+          return L.circleMarker(latlng);
+        },
+        style: { color: "#000", weight: 5 }
+      });
+    } catch (error) {
+      console.error('[createGeoJSONLayer]', error)
     }
   }
 }
