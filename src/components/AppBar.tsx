@@ -9,7 +9,7 @@ export const AppBar = (props: { buttonProps: any, [key: string]: any }) => {
   // }
 
   return (
-    <Box bg="silver" h="100vh" w={props.width} >
+    <Box bg="silver" h="100vh">
       <VStack spacing={8} justifyContent="center">
         <Text> Vantage </Text>
         <IconButton

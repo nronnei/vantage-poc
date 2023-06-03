@@ -19,13 +19,11 @@ export const App = () => {
     <ChakraProvider>
       <RecoilRoot>
         <InjectionProvider>
-          <Flex direction="row">
-            <Box>
-              <AppBar width={APP_BAR_WIDTH_DESKTOP} buttonProps={buttonProps}></AppBar>
-              <Sidebar ml={APP_BAR_WIDTH_DESKTOP} {...disclosureProps}>
-                <SidebarContent></SidebarContent>
-              </Sidebar>
-            </Box>
+          <Flex>
+            <AppBar buttonProps={buttonProps} />
+            <Sidebar {...disclosureProps}>
+              <SidebarContent />
+            </Sidebar>
             <Map />
           </Flex>
         </InjectionProvider>
