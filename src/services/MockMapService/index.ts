@@ -1,12 +1,4 @@
-import {
-  ClickEvent,
-  HoverEvent,
-  MapServiceEvent,
-  MapServiceEventHandler,
-  MapServiceEventType,
-  MapServicePoint,
-  MapServiceViewpoint
-} from "../../types/Events";
+import { MapServicePoint, MapServiceViewpoint, MapEvents } from "../../types/Events";
 import { VGeoJSONLayer, VLayer, VTileLayer } from "../../types/Layer";
 import { IMapService } from "../../interfaces/IMapService";
 import { MockMap } from "./map";
@@ -14,12 +6,13 @@ import { MockMap } from "./map";
 
 export class MockMapService implements IMapService {
   private _map!: MockMap;
-  private _listeners: Record<MapServiceEventType, MapServiceEventHandler[]> = {
+  private _listeners: MapEvents.EventHandlerHash = {
     click: [],
     movestart: [],
     moveend: [],
-    mouseover: [],
     hover: [],
+    dragstart: [],
+    dragend: []
   };
 
   constructor() { }
@@ -31,18 +24,18 @@ export class MockMapService implements IMapService {
     const self = this;
     this._map.on('mouseover', (evt) => {
       self.emit('hover', {
-        type: 'hover',
         libEvent: evt,
-        lng: evt.x,
-        lat: evt.y
+        lng: evt.clientX,
+        lat: evt.clientY,
       })
     })
     this._map.on('click', (evt) => {
       self.emit('click', {
-        type: 'hover',
         libEvent: evt,
         lng: evt.x,
-        lat: evt.y
+        lat: evt.y,
+        x: evt.x,
+        y: evt.y,
       })
     })
   };
@@ -80,16 +73,18 @@ export class MockMapService implements IMapService {
     console.log('setLayerVisibility', id, visible)
   };
 
-  on(eventName: MapServiceEventType, serviceEventHandler: MapServiceEventHandler) {
+  on<E extends keyof MapEvents.EventMap>(
+    eventName: E,
+    serviceEventHandler: MapEvents.EventHandler<E>
+  ) {
     this._listeners[eventName].push(serviceEventHandler);
     return () => {
-      this._listeners[eventName] = this._listeners[eventName].filter((fn) => {
-        return fn !== serviceEventHandler;
-      })
+      const idx = this._listeners[eventName].findIndex(fn => fn === serviceEventHandler);
+      this._listeners[eventName].splice(idx, 1);
     }
   };
 
-  off(eventName: MapServiceEventType) {
+  off(eventName: keyof MapEvents.EventMap) {
     this._listeners[eventName] = [];
   };
 
@@ -97,9 +92,10 @@ export class MockMapService implements IMapService {
     this._map.moveItMoveIt(viewpoint);
   };
 
-  emit(eventName: MapServiceEventType, event: HoverEvent): void
-  emit(eventName: MapServiceEventType, event: ClickEvent): void
-  emit(eventName: MapServiceEventType, event: MapServiceEvent): void {
+  emit<E extends keyof MapEvents.EventMap>(
+    eventName: E,
+    event: MapEvents.EventMap[E]
+  ): void {
     this._listeners[eventName].forEach((handler) => handler(event));
   }
 }

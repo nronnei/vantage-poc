@@ -15,6 +15,7 @@ import {
   MapServiceViewpoint,
   MoveEndEvent,
   MoveStartEvent
+  MapEvents,
 } from "../../types/Events";
 import { VGeoJSONLayer, VLayer, VTileLayer } from "../../types/Layer";
 import { IMapService } from "../../interfaces/IMapService";
@@ -45,13 +46,11 @@ export class LeafletMapService implements IMapService {
       id: '__base',
       type: 'tile',
       name: 'Basemap',
-      url: 'https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}{r}.png',
+      url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
       visible: true,
       opacity: 1,
-      attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      subdomains: 'abcd',
-      minZoom: 1,
-      maxZoom: 16,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19,
     }
 
     this.addLayer(baseLayerConfig)
@@ -74,7 +73,7 @@ export class LeafletMapService implements IMapService {
     })
   };
 
-  addLayer(layer: VLayer | VGeoJSONLayer | VTileLayer) {
+  addLayer(layer: VLayer | VGeoJSONLayer | LeafletTileLayer) {
     try {
       if (this._layerCache.has(layer.id)) return;
       const leafletLayer = this.createLayer(layer);
@@ -86,7 +85,7 @@ export class LeafletMapService implements IMapService {
     }
   };
 
-  addLayers(layers: (VLayer | VGeoJSONLayer | VTileLayer)[]) {
+  addLayers(layers: (VLayer | VGeoJSONLayer | LeafletTileLayer)[]) {
     const addLayer = this.addLayer
     layers.forEach(addLayer);
   };
@@ -143,8 +142,10 @@ export class LeafletMapService implements IMapService {
   };
 
   goTo(viewpoint: MapServiceViewpoint | MapServicePoint): void {
-    const flyToOpts: LatLngExpression = viewpoint.center ?? viewpoint
-    if (viewpoint.scale) flyToOpts.zoom = viewpoint.scale;
+    const flyToOpts: LatLngExpression = viewpoint?.center ?? viewpoint
+    if (viewpoint.scale !== undefined) {
+      flyToOpts.zoom = viewpoint.scale
+    };
     this._map.flyTo(flyToOpts);
   };
 
@@ -156,7 +157,7 @@ export class LeafletMapService implements IMapService {
     this._listeners[eventName].forEach((handler) => handler(event));
   }
 
-  private createLayer(layerConfig: VTileLayer | VGeoJSONLayer) {
+  private createLayer(layerConfig: LeafletTileLayer | VGeoJSONLayer) {
     const possibleError = ReferenceError(`Layer type "${layerConfig.type}" not supported.`);
     switch (layerConfig.type) {
       case 'tile':
@@ -170,8 +171,8 @@ export class LeafletMapService implements IMapService {
 
   private createTileLayer(layerConfig: LeafletTileLayer) {
     try {
-      const { url, attribution, subdomains, minZoom, maxZoom, ext } = layerConfig;
-      const tLayer = L.tileLayer(url, { attribution, subdomains, minZoom, maxZoom });
+      const { url, attribution, minZoom, maxZoom } = layerConfig;
+      const tLayer = L.tileLayer(url, { attribution, minZoom, maxZoom });
       return tLayer;
     } catch (error) {
       console.error('[createTileLayer]', error)
