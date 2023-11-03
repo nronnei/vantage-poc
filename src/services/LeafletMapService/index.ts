@@ -3,7 +3,8 @@ import L, {
   Map as LeafletMap,
   LeafletEvent,
   LeafletMouseEvent,
-  LatLngExpression,
+  Layer,
+  TileLayer,
 } from "leaflet";
 import {
   ClickEvent,
@@ -14,7 +15,7 @@ import {
   MapServicePoint,
   MapServiceViewpoint,
   MoveEndEvent,
-  MoveStartEvent
+  MoveStartEvent,
   MapEvents,
 } from "../../types/Events";
 import { VGeoJSONLayer, VLayer, VTileLayer } from "../../types/Layer";
@@ -25,12 +26,13 @@ import { LeafletTileLayer } from './types';
 export class LeafletMapService implements IMapService {
   private _map!: LeafletMap;
   private _layerCache = new Map();
-  private _listeners: Record<MapServiceEventType, MapServiceEventHandler[]> = {
+  private _listeners: MapEvents.EventHandlerHash = {
     click: [],
     movestart: [],
     moveend: [],
-    mouseover: [],
     hover: [],
+    dragstart: [],
+    dragend: []
   };
 
   constructor() { }
@@ -59,17 +61,23 @@ export class LeafletMapService implements IMapService {
 
     this._map.on('movestart', (evt: LeafletEvent) => {
       const { lat, lng } = self._map.getCenter();
-      self.emit('movestart', { type: 'movestart', libEvent: evt, lng, lat })
+      self.emit('movestart', { libEvent: evt, lng, lat })
     })
 
     this._map.on('moveend', (evt: LeafletEvent) => {
       const { lat, lng } = self._map.getCenter();
-      self.emit('moveend', { type: 'moveend', libEvent: evt, lng, lat })
+      self.emit('moveend', { libEvent: evt, lng, lat })
     })
 
     this._map.on('click', (evt: LeafletMouseEvent) => {
       const { lat, lng } = evt.latlng;
-      self.emit('click', { type: 'click', libEvent: evt, lng, lat })
+      self.emit('click', {
+        libEvent: evt,
+        lng,
+        lat,
+        x: evt.containerPoint.x,
+        y: evt.containerPoint.y,
+      })
     })
   };
 
@@ -128,32 +136,25 @@ export class LeafletMapService implements IMapService {
     this.setLayerOpacity({ id, opacity });
   };
 
-  on(eventName: MapServiceEventType, serviceEventHandler: MapServiceEventHandler) {
+  on<E extends keyof MapEvents.EventMap>(
+    eventName: E,
+    serviceEventHandler: MapEvents.EventHandler<E>
+  ) {
     this._listeners[eventName].push(serviceEventHandler);
     return () => {
-      this._listeners[eventName] = this._listeners[eventName].filter((fn) => {
-        return fn !== serviceEventHandler;
-      })
+      const idx = this._listeners[eventName].findIndex(fn => fn === serviceEventHandler);
+      this._listeners[eventName].splice(idx, 1);
     }
   };
 
-  off(eventName: MapServiceEventType) {
+  off(eventName: keyof MapEvents.EventMap) {
     this._listeners[eventName] = [];
   };
 
-  goTo(viewpoint: MapServiceViewpoint | MapServicePoint): void {
-    const flyToOpts: LatLngExpression = viewpoint?.center ?? viewpoint
-    if (viewpoint.scale !== undefined) {
-      flyToOpts.zoom = viewpoint.scale
-    };
-    this._map.flyTo(flyToOpts);
-  };
-
-  emit(eventName: MapServiceEventType, event: HoverEvent): void
-  emit(eventName: MapServiceEventType, event: MoveStartEvent): void
-  emit(eventName: MapServiceEventType, event: MoveEndEvent): void
-  emit(eventName: MapServiceEventType, event: ClickEvent): void
-  emit(eventName: MapServiceEventType, event: MapServiceEvent): void {
+  emit<E extends keyof MapEvents.EventMap>(
+    eventName: E,
+    event: MapEvents.EventMap[E]
+  ): void {
     this._listeners[eventName].forEach((handler) => handler(event));
   }
 
