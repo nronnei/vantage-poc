@@ -1,11 +1,4 @@
-import {
-  MapEvents,
-  MapServiceEvent,
-  MapServiceEventHandler,
-  MapServiceEventType,
-  MapServicePoint,
-  MapServiceViewpoint
-} from "../types/Events";
+import { MapEvents, MapServicePoint, MapServiceViewpoint } from "../types/Events";
 import { VGeoJSONLayer, VLayer, VTileLayer } from "../types/Layer";
 
 export interface IMapService extends MapEvents.EventEmitter {

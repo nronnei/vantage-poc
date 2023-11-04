@@ -9,14 +9,9 @@ import { IMapService } from "../../interfaces/IMapService";
 import { VLayer, VGeoJSONLayer, VTileLayer } from "../../types/Layer";
 import { EsriClickEvent, EsriDragEvent } from "../../types/EsriEvents";
 import {
-  ClickEvent,
-  MapServiceEvent,
-  MapServiceEventHandler,
-  MapServiceEventType,
+  MapEvents,
   MapServicePoint,
   MapServiceViewpoint,
-  MoveEndEvent,
-  MoveStartEvent
 } from "../../types/Events";
 
 let _map: Map;
@@ -26,12 +21,13 @@ let _mapView: MapView;
 export class EsriMapService implements IMapService {
 
   private _layerIdMap: Record<string, string> = {};
-  private _listeners: Record<MapServiceEventType, MapServiceEventHandler[]> = {
+  private _listeners: MapEvents.EventHandlerHash = {
     click: [],
     movestart: [],
     moveend: [],
-    mouseover: [],
     hover: [],
+    dragstart: [],
+    dragend: []
   };
 
   setMap(container: string | HTMLDivElement) {
@@ -45,6 +41,7 @@ export class EsriMapService implements IMapService {
 
     const self = this;
     _mapView.on("drag", self.onDrag.bind(self));
+    // @ts-ignore Esri's event typing sucks
     _mapView.on("click", self.onClick.bind(self));
   };
 
@@ -94,18 +91,27 @@ export class EsriMapService implements IMapService {
     layer.visible = visible;
   };
 
-  on(eventName: MapServiceEventType, serviceEventHandler: MapServiceEventHandler) {
+  on<E extends keyof MapEvents.EventMap>(
+    eventName: E,
+    serviceEventHandler: MapEvents.EventHandler<E>
+  ) {
     this._listeners[eventName].push(serviceEventHandler);
     return () => {
-      this._listeners[eventName] = this._listeners[eventName].filter((fn) => {
-        return fn !== serviceEventHandler;
-      })
+      const idx = this._listeners[eventName].findIndex(fn => fn === serviceEventHandler);
+      this._listeners[eventName].splice(idx, 1);
     }
   };
 
-  off(eventName: MapServiceEventType) {
+  off(eventName: keyof MapEvents.EventMap) {
     this._listeners[eventName] = [];
   };
+
+  emit<E extends keyof MapEvents.EventMap>(
+    eventName: E,
+    event: MapEvents.EventMap[E]
+  ): void {
+    this._listeners[eventName].forEach((handler) => handler(event));
+  }
 
   goTo(viewpoint: MapServiceViewpoint | MapServicePoint): void {
     if (!viewpoint) throw Error('[goTo] Missing required argument.');
@@ -126,35 +132,27 @@ export class EsriMapService implements IMapService {
     return Layer;
   }
 
-  private emit(eventName: MapServiceEventType, event: MoveStartEvent): void
-  private emit(eventName: MapServiceEventType, event: MoveEndEvent): void
-  private emit(eventName: MapServiceEventType, event: ClickEvent): void
-  private emit(eventName: MapServiceEventType, event: MapServiceEvent): void {
-    this._listeners[eventName].forEach((handler) => handler(event));
-  }
-
   private onClick(event: EsriClickEvent) {
     this.emit("click", {
-      type: "click",
       libEvent: event,
       lng: event.mapPoint.longitude,
       lat: event.mapPoint.latitude,
+      x: event.x,
+      y: event.y,
     })
   }
 
   private onDrag(event: EsriDragEvent) {
     switch (event.action) {
       case 'start':
-        this.emit("movestart", {
-          type: "movestart",
+        this.emit("dragstart", {
           libEvent: event,
           lng: event.x,
           lat: event.y,
         })
         break;
       case 'end':
-        this.emit("moveend", {
-          type: "moveend",
+        this.emit("dragend", {
           libEvent: event,
           lng: event.x,
           lat: event.y,

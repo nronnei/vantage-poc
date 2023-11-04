@@ -6,19 +6,8 @@ import L, {
   Layer,
   TileLayer,
 } from "leaflet";
-import {
-  ClickEvent,
-  HoverEvent,
-  MapServiceEvent,
-  MapServiceEventHandler,
-  MapServiceEventType,
-  MapServicePoint,
-  MapServiceViewpoint,
-  MoveEndEvent,
-  MoveStartEvent,
-  MapEvents,
-} from "../../types/Events";
-import { VGeoJSONLayer, VLayer, VTileLayer } from "../../types/Layer";
+import { MapServicePoint, MapServiceViewpoint, MapEvents } from "../../types/Events";
+import { VGeoJSONLayer, VLayer } from "../../types/Layer";
 import { IMapService } from "../../interfaces/IMapService";
 import { LeafletTileLayer } from './types';
 
