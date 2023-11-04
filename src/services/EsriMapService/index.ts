@@ -143,12 +143,16 @@ export class EsriMapService implements IMapService {
   }
 
   private onDrag(event: EsriDragEvent) {
+    const { latitude: lat, longitude: lng, x, y } = _mapView.center;
     switch (event.action) {
       case 'start':
         this.emit("dragstart", {
           libEvent: event,
           lng: event.x,
           lat: event.y,
+          x,
+          y,
+          center: { lat, lng },
         })
         break;
       case 'end':
@@ -156,6 +160,9 @@ export class EsriMapService implements IMapService {
           libEvent: event,
           lng: event.x,
           lat: event.y,
+          x,
+          y,
+          center: { lat, lng },
         })
         break;
       default:
